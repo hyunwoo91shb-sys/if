@@ -1,4 +1,3 @@
-python_requires==3.11
 streamlit==1.47.1
 yfinance==0.2.52
 pandas==2.2.3
