@@ -7,31 +7,6 @@ from __future__ import annotations
 import warnings
 warnings.filterwarnings("ignore")
 
-# SSL 인증서 검증 우회 (기업 네트워크/보안 프록시 환경 대응)
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
-
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# yfinance curl_cffi 세션 SSL 우회 패치
-import yfinance._http as _yf_http
-from yfinance._http import _backend, HAS_CURL_CFFI
-import sys as _sys
-
-def _patched_new_session():
-    if HAS_CURL_CFFI:
-        return _backend.Session(impersonate="chrome", verify=False)
-    s = _backend.Session()
-    s.verify = False
-    s.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-    return s
-
-_yf_http.new_session = _patched_new_session
-for _mod_name, _mod in _sys.modules.items():
-    if "yfinance" in _mod_name and hasattr(_mod, "new_session"):
-        setattr(_mod, "new_session", _patched_new_session)
-
 import streamlit as st
 import pandas as pd
 import yfinance as yf
